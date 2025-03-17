@@ -31,3 +31,12 @@ python src/main.py
 
 ### Much later
 - Periodically check courts for availability. Courts free up 2 days prior to booking to avoid fees
+
+
+### Server timings from NZ
+
+```
+2025-03-17 08:44:52.549Z # Time request was sent from laptop
+2025-03-17T08:44:52.965Z # Time booking was created (+416ms)
+2025-03-17T08:44:53.074Z # Time confirmation email was sent (+109)
+```

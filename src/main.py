@@ -18,7 +18,7 @@ logger = logging.getLogger("main")
 DAY_OF_WEEK_INDEX = {day_name: idx for idx, day_name in enumerate(calendar.day_name)}
 
 
-def get_future_bookings(booking_config, lookahead_days: int = 14):
+def get_future_bookings(booking_config, lookahead_days: int = 7):
     future_bookings = []
     today = datetime.now()
     for day_index in range(lookahead_days):
@@ -65,8 +65,9 @@ def main():
         court_number = booking["court_number"]
         members = [client.find_member(member) for member in booking["members"]]
         try:
-            client.validate_booking(members, start_time, end_time, court_number)
-            # client.book(members, start_time, end_time, court_number)
+            booking_validation = client.validate_booking(members, start_time, end_time, court_number)
+            assert booking_validation["fee"] == 0
+            client.book(members, start_time, end_time, court_number)
         except HelloClubAPIError:
             pass
             # TODO: Attempt to book adjacent courts

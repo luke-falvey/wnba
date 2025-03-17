@@ -1,11 +1,8 @@
 from typing import List
 from datetime import datetime, UTC
-from zoneinfo import ZoneInfo
 import logging
 
 import requests
-
-UTC = ZoneInfo("UTC")
 
 BASE_URL = "https://api.helloclub.com"
 
@@ -195,6 +192,7 @@ class HelloClubClient:
             self._logger.debug(
                 f"Validate response. ({response.text=})"
             )
+            return response.json()
         else:
             self._logger.error(
                 f"Failed to validate booking. ({response.status_code}, {response.text=})"

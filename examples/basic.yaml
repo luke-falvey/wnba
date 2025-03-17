@@ -1,17 +1,9 @@
 bookings:
-  - weekday: "Monday"
-    start_time: "17:30"
-    end_time: "18:30"
-    mode: "Stadium Pass"
-    court: 1
-    members:
-      - "Luke Falvey"
-      - "Josef Sutrisna"
-  - weekday: "Saturday"
-    start_time: "6:00"
+  - weekday: "Thursday"
+    start_time: "7:00"
     end_time: "8:00"
     mode: "Stadium Pass"
-    court: 3
+    court: 2
     members:
       - "Luke Falvey"
-      - "Bevan Cox"
+      - "Laura Suddaby"
