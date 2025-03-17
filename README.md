@@ -12,11 +12,11 @@ HELLO_CLUB_USERNAME = "<USERNAME>"
 HELLO_CLUB_PASSWORD = "<PASSWORD>"
 ```
 
-Python virtual environment setup
+Python Environment Setup
+
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/)
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+uv sync
 ```
 
 Run

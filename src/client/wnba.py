@@ -1,11 +1,13 @@
 from typing import List
-from datetime import datetime
+from datetime import datetime, UTC
 from zoneinfo import ZoneInfo
 import logging
 
 import requests
 
 UTC = ZoneInfo("UTC")
+
+BASE_URL = "https://api.helloclub.com"
 
 # WNBA Specific
 ACTIVITY = "5aadd66e87c6b800048a2908"  # Wellington North Badminton Stadium
@@ -26,9 +28,9 @@ def format_datetime(dt: datetime) -> str:
     return dt.astimezone(UTC).isoformat(timespec="milliseconds").replace("+00:00", "Z")
 
 
-def authenticate(base_url: str, username: str, password: str) -> str:
+def authenticate(username: str, password: str) -> str:
     response = requests.post(
-        f"{base_url}/auth/token",
+        f"{BASE_URL}/auth/token",
         json={
             "username": username,
             "password": password,
@@ -54,14 +56,13 @@ class HelloClubAPIError(Exception):
 
 
 class HelloClubClient:
-    def __init__(self, base_url: str, token: str):
-        self._base_url = base_url
+    def __init__(self, token: str):
         self._token = token
         self._logger = logging.getLogger("wnba")
 
     def find_member(self, name: str) -> str:
         response = requests.get(
-            f"{self._base_url}/member/findByName",
+            f"{BASE_URL}/member/findByName",
             headers={"Authorization": f"Bearer {self._token}"},
             params={"includeStaff": False, "name": name},
         )
@@ -69,12 +70,13 @@ class HelloClubClient:
             json_body = response.json()
             members = json_body.get("members")
             if len(members) == 1:
-                self._logger.info(f"Retrieved user details. ({name=}, {id=})")
-                return members[0]["id"]
+                member_id = members[0]["id"]
+                self._logger.info(f"Retrieved user details. ({name=}, {member_id=})")
+                return member_id
 
     def get_member_id(self) -> str:
         response = requests.get(
-            f"{self._base_url}/user/me",
+            f"{BASE_URL}/user/me",
             headers={"Authorization": f"Bearer {self._token}"},
         )
         if response.status_code == 200:
@@ -83,24 +85,45 @@ class HelloClubClient:
             self._logger.info(f"Retrieved logged in user details. ({id=})")
             return id
 
-    def get_bookings(self, from_date: datetime, to_date: datetime):
+    def get_bookings(
+        self, from_date: datetime, to_date: datetime, is_removed: bool = False
+    ):
         response = requests.get(
-            f"{self._base_url}/booking",
+            f"{BASE_URL}/booking",
             headers={"Authorization": f"Bearer {self._token}"},
             params={
                 "activity": ACTIVITY,
-                "fromDate": from_date,
-                "toDate": to_date,
+                "fromDate": format_datetime(from_date),
+                "toDate": format_datetime(to_date),
                 "offset": 0,
                 "limit": 100,
-                "isRemoved": False,
+                "isRemoved": is_removed,
             },
         )
         if response.status_code == 200:
             self._logger.info(f"Retrieved bookings. ({from_date=}, {to_date=})")
             json_body = response.json()
-            id = json_body["id"]
-            return id
+            return json_body["bookings"]
+
+    def get_events(
+        self, from_date: datetime, to_date: datetime, is_removed: bool = False
+    ):
+        response = requests.get(
+            f"{BASE_URL}/event",
+            headers={"Authorization": f"Bearer {self._token}"},
+            params={
+                "activity": ACTIVITY,
+                "fromDate": format_datetime(from_date),
+                "toDate": format_datetime(to_date),
+                "isRemoved": is_removed,
+            },
+        )
+        if response.status_code == 200:
+            self._logger.info(f"Retrieved events. ({from_date=}, {to_date=})")
+            json_body = response.json()
+            return json_body["events"]
+        else:
+            raise HelloClubAPIError
 
     def book(
         self,
@@ -112,7 +135,7 @@ class HelloClubClient:
     ) -> str:
         area = COURTS[court_numer]
         response = requests.post(
-            f"{self._base_url}/booking",
+            f"{BASE_URL}/booking",
             headers={"Authorization": f"Bearer {self._token}"},
             json={
                 "members": members,
@@ -149,7 +172,7 @@ class HelloClubClient:
     ) -> str:
         area = COURTS[court_numer]
         response = requests.post(
-            f"{self._base_url}/booking/validate",
+            f"{BASE_URL}/booking/validate",
             headers={
                 "Authorization": f"Bearer {self._token}",
             },
@@ -168,6 +191,9 @@ class HelloClubClient:
         if response.status_code == 200:
             self._logger.info(
                 f"Validated booking request. ({court_numer=}, {members=}, {start_date=}, {end_date=})"
+            )
+            self._logger.debug(
+                f"Validate response. ({response.text=})"
             )
         else:
             self._logger.error(
