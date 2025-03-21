@@ -24,7 +24,7 @@ HELLO_CLUB_PASSWORD = os.environ["HELLO_CLUB_PASSWORD"]
 # Email
 SMTP_PASSWORD = os.environ["SMTP_PASSWORD"]
 FROM_ADDRESS = "lukebfalvey@gmail.com"
-TO_ADDRESSES = "lukebfalvey@gmail.com"  # Comma-Separated
+TO_ADDRESSES = "lukebfalvey@gmail.com, richard@wnba.org.nz"  # Comma-Separated
 
 
 @dataclasses.dataclass
