@@ -1,5 +1,8 @@
 from datetime import datetime, timedelta
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
+from email.utils import COMMASPACE
 import smtplib
 import zoneinfo
 import argparse
@@ -50,7 +53,7 @@ class Booking:
             if booking.get("removedOn")
             else None,
             removed_by=booking.get("removedBy", {}).get("name")
-            if booking.get("removedOn")
+            if booking.get("removedBy")
             else None,
         )
 
@@ -148,7 +151,7 @@ def email_bookings(client: HelloClubClient, from_date: datetime, to_date: dateti
         Booking.from_dict(booking) for booking in removed_bookings if booking
     ]
 
-    email_lines = []
+    booking_lines = []
 
     for booking in sorted(bookings + removed_bookings):
         email_confirmation = (
@@ -165,13 +168,21 @@ def email_bookings(client: HelloClubClient, from_date: datetime, to_date: dateti
         else:
             removed_message = ""
 
-        email_lines.append(
+        booking_lines.append(
             f"{email_confirmation} {booking.owner_name[:20]:<20} {booking.court}: {start_time}-{end_time} {removed_message}"
         )
 
-    email_body = "\n".join(email_lines)
-    msg = MIMEText(email_body)
+    bookings_log = "\n".join(booking_lines)
+
+    msg = MIMEMultipart()
+    msg["From"] = FROM_ADDRESS
+    msg["To"] = TO_ADDRESSES
     msg["Subject"] = f"WNBA Bookings: {from_date.date()}"
+    msg.attach(MIMEText(f"Please find attached bookings from: {from_date} - {to_date}"))
+    part = MIMEApplication(bookings_log, Name="bookings.log")
+    part["Content-Disposition"] = 'attachment; filename="bookings.log"'
+    msg.attach(part)
+
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp_server:
         smtp_server.login(FROM_ADDRESS, SMTP_PASSWORD)
         smtp_server.sendmail(FROM_ADDRESS, TO_ADDRESSES, msg.as_string())
