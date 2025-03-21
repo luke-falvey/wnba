@@ -220,32 +220,32 @@ def bookings_handler(event, context):
 
 
 if __name__ == "__main__":
-    bookings_handler(None, None)
-    # parser = argparse.ArgumentParser(prog="bookings")
-    # parser.add_argument("--from-date", required=False)
-    # parser.add_argument("--removed", required=False, default=False, action="store_true")
-    # parser.add_argument(
-    #     "--timetable", required=False, default=False, action="store_true"
-    # )
+    # bookings_handler(None, None)
+    parser = argparse.ArgumentParser(prog="bookings")
+    parser.add_argument("--from-date", required=False)
+    parser.add_argument("--removed", required=False, default=False, action="store_true")
+    parser.add_argument(
+        "--timetable", required=False, default=False, action="store_true"
+    )
 
-    # args = parser.parse_args()
+    args = parser.parse_args()
 
-    # access_token = authenticate(HELLO_CLUB_USERNAME, HELLO_CLUB_PASSWORD)
-    # client = HelloClubClient(access_token)
+    access_token = authenticate(HELLO_CLUB_USERNAME, HELLO_CLUB_PASSWORD)
+    client = HelloClubClient(access_token)
 
-    # from_date = (
-    #     datetime.fromisoformat(args.from_date).replace(tzinfo=PACIFIC_AUCKLAND)
-    #     if args.from_date
-    #     else datetime.today()
-    #     .replace(hour=0, minute=0, second=0, microsecond=0)
-    #     .astimezone(PACIFIC_AUCKLAND)
-    # )
-    # to_date = (from_date + timedelta(days=1) - timedelta(milliseconds=1)).astimezone(
-    #     PACIFIC_AUCKLAND
-    # )
+    from_date = (
+        datetime.fromisoformat(args.from_date).replace(tzinfo=PACIFIC_AUCKLAND)
+        if args.from_date
+        else datetime.today()
+        .replace(hour=0, minute=0, second=0, microsecond=0)
+        .astimezone(PACIFIC_AUCKLAND)
+    )
+    to_date = (from_date + timedelta(days=1) - timedelta(milliseconds=1)).astimezone(
+        PACIFIC_AUCKLAND
+    )
 
-    # print(from_date, to_date, "\n")
-    # if args.timetable:
-    #     print_timetable(client, from_date, to_date)
-    # else:
-    #     print_bookings(client, from_date, to_date)
+    print(from_date, to_date, "\n")
+    if args.timetable:
+        print_timetable(client, from_date, to_date)
+    else:
+        print_bookings(client, from_date, to_date)
