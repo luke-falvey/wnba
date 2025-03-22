@@ -82,10 +82,17 @@ resource "aws_iam_role_policy_attachment" "lambda_logs" {
 }
 
 resource "aws_cloudwatch_event_rule" "schedule" {
-  name        = "daily-bookings-email"
-  description = "Send an email containing time to book for the day"
-
+  name                = "daily-bookings-email"
+  description         = "Send an email containing time to book for the day"
+  event_pattern       = jsonencode({ event = ["trigger-lambda"] })
   schedule_expression = "cron(0 3 * * ? *)"
+}
+
+resource "aws_lambda_permission" "check_bookings_perm" {
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.check_bookings.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.schedule.arn
 }
 
 
