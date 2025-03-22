@@ -46,7 +46,9 @@ class Booking:
     def from_dict(cls, booking: dict):
         return cls(
             owner_name=booking["owner"]["name"],
-            confirmation_email_sent=parse_datetime(booking["emailConfirmationSent"]),
+            confirmation_email_sent=parse_datetime(booking["emailConfirmationSent"])
+            if booking.get("emailConfirmationSent")
+            else None,
             start_time=parse_datetime(booking["startDate"]),
             end_time=parse_datetime(booking["endDate"]),
             court=booking["area"]["name"],
@@ -196,7 +198,9 @@ def email_bookings(client: HelloClubClient, from_date: datetime, to_date: dateti
         msg["From"] = FROM_ADDRESS
         msg["To"] = TO_ADDRESSES
         msg["Subject"] = f"WNBA Bookings: {from_date.date()}"
-        msg.attach(MIMEText(f"Please find attached bookings from: {from_date} - {to_date}"))
+        msg.attach(
+            MIMEText(f"Please find attached bookings from: {from_date} - {to_date}")
+        )
         part = MIMEApplication(f.read(), Name="bookings.csv")
         part["Content-Disposition"] = 'attachment; filename="bookings.csv"'
         msg.attach(part)
