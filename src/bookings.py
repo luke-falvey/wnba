@@ -217,7 +217,7 @@ def bookings_handler(event, context):
 
     from_date = datetime.now(tz=PACIFIC_AUCKLAND).replace(
         hour=0, minute=0, second=0, microsecond=0
-    )
+    ) + timedelta(days=7)
     to_date = from_date + timedelta(days=1) - timedelta(milliseconds=1)
 
     email_bookings(client, from_date, to_date)
