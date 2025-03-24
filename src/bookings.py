@@ -207,7 +207,7 @@ def email_bookings(client: HelloClubClient, from_date: datetime, to_date: dateti
 
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp_server:
             smtp_server.login(FROM_ADDRESS, SMTP_PASSWORD)
-            smtp_server.sendmail(FROM_ADDRESS, TO_ADDRESSES, msg.as_string())
+            smtp_server.sendmail(FROM_ADDRESS, TO_ADDRESSES.split(", "), msg.as_string())
 
 
 def bookings_handler(event, context):
